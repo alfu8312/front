@@ -2,13 +2,14 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import MapMain from '@/components/MapMain'
+import ErrorPage from '@/components/common/ErrorPage'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
-      path: '/hellp',
+      path: '/help',
       name: 'Hello',
       component: HelloWorld
     },
@@ -16,6 +17,12 @@ export default new Router({
       path: '/map',
       name: 'MapMain',
       component: MapMain
+    },
+    {
+      path: '*',
+      name: 'pageNotFound',
+      component: ErrorPage,
+      props: {code: '404'}
     }
   ]
 })

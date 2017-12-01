@@ -41,7 +41,6 @@
     },
     methods: {
       moveToMenu: function (menuName) {
-        debugger
         if (!menuName) {
           alert('empty page')
           return
