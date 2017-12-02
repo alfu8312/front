@@ -14,7 +14,7 @@ export default new Router({
       component: HelloWorld
     },
     {
-      path: '/map',
+      path: '/',
       name: 'MapMain',
       component: MapMain
     },

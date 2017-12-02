@@ -1,55 +1,78 @@
 <template>
-  <v-app id="inspire" dark>
-    <v-navigation-drawer
-      clipped
-      fixed
-      v-model="drawer"
-      app
-    >
-      <v-list dense>
-        <v-list-tile @click="moveToMenu('map')">
+  <v-app id="inspire">
+    <v-navigation-drawer fixed v-model="drawerRight" :stateless="right" right clipped app>
+      <!--v-list dense>
+        <v-list-tile @click.stop="right = !right">
           <v-list-tile-action>
-            <v-icon>dashboard</v-icon>
+            <v-icon>exit_to_app</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title>Go Map</v-list-tile-title>
+            <v-list-tile-title>Open Temporary Drawer</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
+      </v-list-->
+    </v-navigation-drawer>
+    <v-navigation-drawer fixed clipped app v-model="drawer">
+      <v-list dense>
+        <template v-for="(item, i) in items">
+          <v-layout row v-if="item.heading" align-center :key="i">
+            <v-flex xs6>
+              <v-subheader v-if="item.heading">
+                {{ item.heading }}
+              </v-subheader>
+            </v-flex>
+            <v-flex xs6 class="text-xs-center">
+              <a href="#!" class="body-2 black--text">EDIT</a>
+            </v-flex>
+          </v-layout>
+          <v-list-tile v-else @click="moveToMenu(item.text)" :key="i">
+            <v-list-tile-action>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>
+                {{ item.text }}
+              </v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </template>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar app fixed clipped-left>
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title>Map</v-toolbar-title>
+    <v-toolbar color="amber" dark app clipped-left fixed>
+      <v-toolbar-title :style="$vuetify.breakpoint.smAndUp ? 'width: 300px; min-width: 250px' : 'min-width: 72px'" class="ml-0 pl-3">
+        <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+        <span class="hidden-xs-only">Maps</span>
+      </v-toolbar-title>
+      <v-text-field light solo prepend-icon="search" placeholder="Search" style="max-width: 500px; min-width: 128px"></v-text-field>
+      <v-spacer></v-spacer>
+      <!--v-toolbar-side-icon @click.stop="drawerRight = !drawerRight"></v-toolbar-side-icon-->
+      <v-btn :stateless="right" icon @click.stop="drawerRight = !drawerRight">
+        <v-icon>apps</v-icon>
+      </v-btn>
     </v-toolbar>
     <v-content>
-      <v-container fluid fill-height>
-        <router-view></router-view>
-      </v-container>
+      <router-view></router-view>
     </v-content>
-    <v-footer app fixed>
-      <span>&copy; 2017 Maps</span>
-    </v-footer>
   </v-app>
 </template>
 
 <script>
-  export default {
-    data: function () {
-      return {
-        drawer: null
+export default {
+  data: () => ({
+    dialog: false,
+    drawer: null,
+    drawerRight: false,
+    right: null,
+    items: [{ icon: 'map', text: 'MapMain' }]
+  }),
+  methods: {
+    moveToMenu: function(menuName) {
+      if (!menuName) {
+        alert('empty page')
+        return
       }
-    },
-    methods: {
-      moveToMenu: function (menuName) {
-        if (!menuName) {
-          alert('empty page')
-          return
-        }
-        this.$router.push(menuName)
-      }
-    },
-    props: {
-      source: String
+      this.$router.push({ name: menuName })
     }
   }
+}
 </script>
