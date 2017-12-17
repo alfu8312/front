@@ -4,7 +4,9 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import Vuetify from 'vuetify'
+import axios from 'axios'
 
+Vue.prototype.$http = axios
 Vue.use(Vuetify)
 Vue.config.productionTip = false
 
