@@ -3,7 +3,9 @@ var map = null
 const baseURI = 'http://192.168.56.111:9200'
 
 export default {
-  init: function(xPos, yPos) {
+  callbackMarker: null,
+  init: function(callback, xPos, yPos) {
+    this.callbackMarker = callback
     /* global naver */
     var mapOptions = {
       // x: 127.1415918, y: 37.5555079 : 강동 롯데
@@ -42,21 +44,20 @@ export default {
     }
     axios.get(`${baseURI}/apartment/apartment/_search`, body).then(
       results => {
-        results.data.hits.hits.map(_this.makeMarker)
+        results.data.hits.hits.map(result => _this.makeMarker(result))
       }
     )
   },
   makeMarker: function(result) {
-    debugger
     var marker = new naver.maps.Marker({
       map: map,
       position: new naver.maps.Point(result._source.position.lon, result._source.position.lat)
     })
 
     var contentString = [
-      '<div class="iw_inner">',
+      '<div class="_infowindow_content" style="padding: 19px 20px 0;">',
       `   <h3>${result._source.aptName}</h3>`,
-      `   <p>준공 : ${result._source.buildYear}<br>`,
+      `   <p>준공 : ${result._source.buildYear}년<br>`,
       `      주소 : ${result._source.addrNm} | ${result._source.roadNm}`,
       '   </p>',
       '</div>'
@@ -65,26 +66,32 @@ export default {
     // TODO 스타일 변경좀.. vue 컴퍼넌트 사용 가능 한지 확인
     var infowindow = new naver.maps.InfoWindow({
       content: contentString,
-      maxWidth: 140,
+      maxWidth: 350,
       backgroundColor: '#eee',
-      borderColor: '#2db400',
-      borderWidth: 5,
+      borderColor: '#8d8d8d',
+      borderWidth: 2,
       anchorSize: new naver.maps.Size(30, 30),
       anchorSkew: true,
       anchorColor: '#eee',
       pixelOffset: new naver.maps.Point(20, -20)
     })
-
+    var _this = this
     naver.maps.Event.addListener(marker, 'click', function(e) {
       if (infowindow.getMap()) {
         infowindow.close()
+        _this.callbackMarker(false)
       } else {
         infowindow.open(map, marker)
-        this.tradeList(result._id)
+        if (_this.callbackMarker) {
+          _this.callbackMarker(true, result._id)
+        }
+        // this.tradeList(result._id)
       }
     })
   },
   tradeList: function(id) {
+    debugger
+
     // TODO 최근 실거래 데이터 조회 => 표, 차트(vue-chart.js?)
     // default 조회 기간 설정 필요
 

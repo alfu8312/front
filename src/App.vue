@@ -1,17 +1,5 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer fixed v-model="drawerRight" :stateless="right" right clipped app>
-      <!--v-list dense>
-        <v-list-tile @click.stop="right = !right">
-          <v-list-tile-action>
-            <v-icon>exit_to_app</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>Open Temporary Drawer</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list-->
-    </v-navigation-drawer>
     <v-navigation-drawer fixed clipped app v-model="drawer">
       <v-list dense>
         <template v-for="(item, i) in items">
@@ -45,8 +33,7 @@
       </v-toolbar-title>
       <v-text-field light solo prepend-icon="search" placeholder="Search" style="max-width: 500px; min-width: 128px"></v-text-field>
       <v-spacer></v-spacer>
-      <!--v-toolbar-side-icon @click.stop="drawerRight = !drawerRight"></v-toolbar-side-icon-->
-      <v-btn :stateless="right" icon @click.stop="drawerRight = !drawerRight">
+      <v-btn icon @click.stop="showRight = !showRight">
         <v-icon>apps</v-icon>
       </v-btn>
     </v-toolbar>
@@ -59,10 +46,8 @@
 <script>
 export default {
   data: () => ({
-    dialog: false,
-    drawer: null,
-    drawerRight: false,
-    right: null,
+    drawer: false,
+    showRight: false,
     items: [{ icon: 'map', text: 'MapMain' }]
   }),
   methods: {
@@ -71,7 +56,15 @@ export default {
         alert('empty page')
         return
       }
-      this.$router.push({ name: menuName })
+
+      if (menuName === 'MapMain') {
+        this.$router.push({
+          name: menuName,
+          props: { showRight: this.showRight }
+        })
+      } else {
+        this.$router.push({ name: menuName })
+      }
     }
   }
 }
