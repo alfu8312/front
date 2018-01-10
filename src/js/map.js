@@ -4,6 +4,7 @@ const baseURI = 'http://192.168.56.111:9200'
 
 export default {
   callbackMarker: null,
+  clickedId: null,
   init: function(callback, xPos, yPos) {
     this.callbackMarker = callback
     /* global naver */
@@ -20,21 +21,21 @@ export default {
     var _this = this
     // TODO 조회범위 내에서 근접한 아파트의 경우 조회 우선순위(최근 거래 건수, 검색횟수 등) 적용 하여 마커 겹치지 않도록 변경
     var body = {
-      'query': {
-        'bool': {
-          'must': {
-            'match_all': {}
+      query: {
+        bool: {
+          must: {
+            match_all: {}
           },
-          'filter': {
-            'geo_bounding_box': {
-              'position': {
-                'top_right': {
-                  'lat': bounds._ne._lat,
-                  'lon': bounds._ne._lng
+          filter: {
+            geo_bounding_box: {
+              position: {
+                top_right: {
+                  lat: bounds._ne._lat,
+                  lon: bounds._ne._lng
                 },
-                'bottom_left': {
-                  'lat': bounds._sw._lat,
-                  'lon': bounds._sw._lng
+                bottom_left: {
+                  lat: bounds._sw._lat,
+                  lon: bounds._sw._lng
                 }
               }
             }
@@ -42,16 +43,17 @@ export default {
         }
       }
     }
-    axios.get(`${baseURI}/apartment/apartment/_search`, body).then(
-      results => {
-        results.data.hits.hits.map(result => _this.makeMarker(result))
-      }
-    )
+    axios.get(`${baseURI}/apartment/apartment/_search`, body).then(results => {
+      results.data.hits.hits.map(result => _this.makeMarker(result))
+    })
   },
   makeMarker: function(result) {
     var marker = new naver.maps.Marker({
       map: map,
-      position: new naver.maps.Point(result._source.position.lon, result._source.position.lat)
+      position: new naver.maps.Point(
+        result._source.position.lon,
+        result._source.position.lat
+      )
     })
 
     var contentString = [
@@ -76,21 +78,44 @@ export default {
       pixelOffset: new naver.maps.Point(20, -20)
     })
     var _this = this
+    naver.maps.Event.addListener(marker, 'mouseover', function(e) {
+      infowindow.open(map, marker)
+      // this.tradeList(result._id)
+    })
+    naver.maps.Event.addListener(marker, 'mouseout', function(e) {
+      infowindow.close()
+    })
     naver.maps.Event.addListener(marker, 'click', function(e) {
-      if (infowindow.getMap()) {
-        infowindow.close()
-        _this.callbackMarker(false)
-      } else {
-        infowindow.open(map, marker)
-        if (_this.callbackMarker) {
-          _this.callbackMarker(true, result._id)
-        }
-        // this.tradeList(result._id)
+      if (_this.callbackMarker) {
+        _this.callbackMarker(result._id)
       }
     })
   },
-  tradeList: function(id) {
-    debugger
+  tradeList: function(apiId) {
+    var body = {
+      query: {
+        bool: {
+          must: {
+            match_all: {}
+          },
+          filter: {
+            term: {
+              aptId: `${apiId}`
+            }
+          }
+        }
+      },
+      sort: [
+        {
+          tradeDate: {
+            order: 'desc'
+          }
+        }
+      ]
+    }
+    return axios.post(`${baseURI}/trade/trade/_search`, body).then(results => {
+      return results.data.hits.hits
+    })
 
     // TODO 최근 실거래 데이터 조회 => 표, 차트(vue-chart.js?)
     // default 조회 기간 설정 필요

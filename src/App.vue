@@ -59,8 +59,7 @@ export default {
 
       if (menuName === 'MapMain') {
         this.$router.push({
-          name: menuName,
-          props: { showRight: this.showRight }
+          name: menuName
         })
       } else {
         this.$router.push({ name: menuName })

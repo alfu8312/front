@@ -1,17 +1,8 @@
 <template>
   <v-layout d-flex justify-center>
-    <v-navigation-drawer fixed v-model="drawerRight" :stateless="right" right clipped app>
-      <!--v-list dense>
-        <v-list-tile @click.stop="right = !right">
-          <v-list-tile-action>
-            <v-icon>exit_to_app</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>Open Temporary Drawer</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list-->
-    </v-navigation-drawer>
+    <!--v-navigation-drawer fixed v-model="drawerRight" :stateless="right" right clipped app>
+    </v-navigation-drawer-->
+    <right-info :drawerRight="isShow" :aptId="clickedAptId"></right-info>
     <v-menu offset-y absolute full-width>
       <v-card id="map" class="portrait" height="800px" slot="activator">
       </v-card>
@@ -21,29 +12,31 @@
 
 <script>
 import map from '@/js/map.js'
+import rightInfo from '@/components/pages/RightInfo.vue'
 
 export default {
   name: 'mapMain',
+  components: {
+    rightInfo
+  },
   data: function() {
     return {
       nmap: null,
-      drawerRight: false,
-      isShow: false,
-      right: null
+      clickedAptId: null,
+      isShow: false
     }
   },
   methods: {
-    clickMarker: function(isOpen, aptId) {
-      console.log('In clickMarker')
-      this.drawerRight = isOpen
-      if (isOpen) {
+    clickMarker: function(aptId) {
+      console.log(this.clickedAptId == null || this.clickedAptId !== aptId)
+      if (this.clickedAptId == null || this.clickedAptId !== aptId) {
+        this.isShow = true
+        this.clickedAptId = aptId
         // TODO aptId 로 실거래가 조회 요청 map.tradeList 후 리턴 받은 데이터로 right 그리기
-        console.log(aptId)
+        console.log('clickMarker : ' + aptId)
+      } else if (this.clickedAptId === aptId) {
+        this.isShow = !this.isShow
       }
-    },
-    isShowRight: function() {
-      debugger
-      return this.showRight && this.drawerRight
     }
   },
   mounted: function() {
@@ -60,9 +53,6 @@ export default {
     // naver.maps.Event.addListener(marker, 'click', function(e) {
     //   _this.clickMarker(marker)
     // })
-  },
-  props: {
-    showRight: false
   }
 }
 </script>
