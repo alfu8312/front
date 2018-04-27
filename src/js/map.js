@@ -1,6 +1,4 @@
-import axios from 'axios'
 var map = null
-const baseURI = 'http://192.168.56.111:9200'
 
 export default {
   callbackMarker: null,
@@ -43,7 +41,7 @@ export default {
         }
       }
     }
-    axios.get(`${baseURI}/apartment/apartment/_search`, body).then(results => {
+    this.$http.get(`apartment/apartment/_search`, body).then(results => {
       results.data.hits.hits.map(result => _this.makeMarker(result))
     })
   },
@@ -113,7 +111,7 @@ export default {
         }
       ]
     }
-    return axios.post(`${baseURI}/trade/trade/_search`, body).then(results => {
+    return this.$http.post(`trade/trade/_search`, body).then(results => {
       return results.data.hits.hits
     })
 
